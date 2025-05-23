@@ -298,7 +298,7 @@ http://localhost:8080/h2-console
 
 ## ✅ Criterios de calidad aplicados
 
-- Arquitectura limpia y desacoplada
+- Arquitectura modular y desacoplada
 - Uso de DTOs y mappers para separar capas
 - Pruebas unitarias con cobertura de servicios
 - Código comentado y legible
