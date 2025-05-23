@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:8096"
+  phases:
+    - duration: 30
+      arrivalRate: 50
+  processor: "./processor.js"
+  defaults:
+    headers:
+      Authorization: "Bearer {{ token }}"
+scenarios:
+  - name: Crear productos con autenticación
+    flow:
+      - post:
+          url: "/products"
+          json:
+            name: "Producto de carga"
+            description: "Insertado con Artillery"
+            price: 99.99
+            stock: 500
+            model: "GEN-TST-01"
+            type: "Artillery"
+            categoryId: 1

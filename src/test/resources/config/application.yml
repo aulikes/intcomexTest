@@ -1,0 +1,86 @@
+spring:
+  profiles:
+    active: dev
+
+  web:
+    resources:
+      # Evita que Spring trate de servir archivos estáticos por su cuenta.
+      # Esto asegura que rutas desconocidas no se redirijan a ResourceHttpRequestHandler.
+      add-mappings: true
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=5m
+
+
+---
+
+server:
+  port: 8080
+
+---
+
+app:
+  # Zona Horaria
+  customerZone :
+    timezone: America/Bogota      #Zona por defecto
+    headerComponent: "X-Timezone" #Nombre del componente en el header para obtener la zona del cliente
+
+  imagesCategory:
+    # Ruta base donde se guardaran las imágenes de las categorías en entorno local
+    imagePublicPath: ./images/categories/
+    # Ruta base donde se encuentran las imágenes de las categorías iniciales para cargarlas al aplicativo
+    imageBasePath: static/images/initial/
+    # Tamaño máximo de las imágenes de las categorías en bytes (10MB)
+    sizeImageCat: 10485760
+    # Formato de imágenes permitidas
+    formatImages:
+      - "image/png"
+      - "image/jpeg"
+      - "image/jpg"
+      - "image/gif"
+
+  # Definición de categorías que se crean automáticamente
+  initialCategories:
+    - name: SERVIDORES
+      description: Servidores físicos empresariales
+      image: servidor-api.png
+    - name: CLOUD
+      description: Soluciones en la nube
+      image: nube-api.png
+
+  # Listado de posibles nombres por categoría
+  productNames:
+    - types: [Servidor, Blade]
+      models: [X500, Ultra, Pro]
+    - types: [Storage, Compute, AI]
+      models: [Lite, Smart, Max]
+
+  # Configuración de carga masiva al inicio
+  initialProductLoad:
+    total: 100            # Productos totales a cargar
+    batchSize: 100         # Máximo de productos por lote en la carga inicial de productos
+
+  # Configuración para cola y procesamiento por lotes
+  productQueue:
+    batchSize: 1000         # Máximo de productos por lote cuando se carga por endpoint-batch
+    queueCapacity: 5000     # Máximo de lotes en la cola
+    workerCount: 0          # Hilos consumidores de la cola (Si es 0 toma los obtenidos por la Máquina)
+
+  jwt: #Duración del Token
+    expiration-millis: 900000  # 15 minutos
+
+  aws:
+    s3:
+      bucket: tu-bucket
+      region: us-east-1
+      accessKeyId: ${AWS_ACCESS_KEY_ID}
+      secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+      urlBase: https://<tu-bucket>.s3.amazonaws.com/
+
+  eventRabbitmq:
+    productEventConfig:
+      queueName: product.created.queue
+      exchange: product.exchange
+      routingKey: product.create

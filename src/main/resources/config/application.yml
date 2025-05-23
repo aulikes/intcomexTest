@@ -1,0 +1,60 @@
+spring:
+  profiles:
+    active: dev
+
+  web:
+    resources:
+      # Evita que Spring trate de servir archivos estáticos por su cuenta.
+      # Esto asegura que rutas desconocidas no se redirijan a ResourceHttpRequestHandler.
+      add-mappings: true
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=5m
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+---
+
+app:
+  # Zona Horaria
+  customerZone :
+    timezone: America/Bogota      #Zona por defecto
+    headerComponent: "X-Timezone" #Nombre del componente en el header para obtener la zona del cliente
+
+  imagesCategory:
+    # Ruta base donde se guardaran las imágenes de las categorías en entorno local
+    imagePublicPath: ./images/categories/
+    # Ruta base donde se encuentran las imágenes de las categorías iniciales para cargarlas al aplicativo
+    imageBasePath: static/images/initial/
+    # Tamaño máximo de las imágenes de las categorías en bytes (10MB)
+    sizeImageCat: 10485760
+    # Formato de imágenes permitidas
+    formatImages:
+      - "image/png"
+      - "image/jpeg"
+      - "image/jpg"
+      - "image/gif"
+
+  # Definición de categorías que se crean automáticamente
+  initialCategories:
+    - name: SERVIDORES
+      description: Servidores físicos empresariales
+      image: servidor-api.png
+    - name: CLOUD
+      description: Soluciones en la nube
+      image: nube-api.png
+
+  # Listado de posibles nombres por categoría
+  productNames:
+    - types: [Servidor, Blade]
+      models: [X500, Ultra, Pro]
+    - types: [Storage, Compute, AI]
+      models: [Lite, Smart, Max]

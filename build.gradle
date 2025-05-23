@@ -1,0 +1,114 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
+}
+
+group = 'com.intcomex'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Documentación API
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
+
+	// Bases de datos
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'com.h2database:h2'
+
+	// Hot reload
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Spring Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT (JJWT de io.jsonwebtoken)
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // Usa Jackson para deserializar claims
+
+	// Soporte para autenticación en memoria
+	implementation 'org.springframework.security:spring-security-config'
+	implementation 'org.springframework.security:spring-security-web'
+
+	// Validacions
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.6'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Lombok
+	implementation "org.projectlombok:lombok:${projectlombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${projectlombokVersion}"
+	testImplementation "org.projectlombok:lombok:${projectlombokVersion}"
+	testAnnotationProcessor "org.projectlombok:lombok:${projectlombokVersion}"
+
+	// MapStruct
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	testImplementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+	//AWS S3
+	implementation 'software.amazon.awssdk:s3:2.25.10'
+
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:rabbitmq'
+	testImplementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+}
+
+// Plataforma de pruebas
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Configuración Jacoco
+jacoco {
+	toolVersion = "0.8.12"
+}
+
+test {
+	include '**/*Test.class' // Solo pruebas unitarias
+	finalizedBy jacocoTestReport
+}
+
+tasks.register('integrationTest', Test) {
+    include '**/*IT.class'   // Solo pruebas de integración
+    shouldRunAfter test
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = false
+	}
+}

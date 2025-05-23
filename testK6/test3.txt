@@ -1,0 +1,114 @@
+import http from 'k6/http';
+import { check } from 'k6';
+import { Trend } from 'k6/metrics';
+import { SharedArray } from 'k6/data';
+
+
+// Lista de usuarios de prueba
+const users = new SharedArray('users', function () {
+    return [
+        { username: 'user1', password: 'user123' },
+        { username: 'user2', password: 'user123' },
+        { username: 'user3', password: 'user123' },
+        { username: 'user4', password: 'user123' },
+        { username: 'user5', password: 'user123' },
+        { username: 'user6', password: 'user123' },
+        { username: 'user7', password: 'user123' },
+        { username: 'user8', password: 'user123' },
+        { username: 'user9', password: 'user123' },
+        { username: 'user10', password: 'user123' },
+        { username: 'user11', password: 'user123' },
+        { username: 'user12', password: 'user123' },
+        { username: 'user13', password: 'user123' },
+        { username: 'user14', password: 'user123' },
+        { username: 'user15', password: 'user123' },
+        { username: 'user16', password: 'user123' },
+        { username: 'user17', password: 'user123' },
+        { username: 'user18', password: 'user123' },
+        { username: 'user19', password: 'user123' },
+        { username: 'user20', password: 'user123' },
+        { username: 'user21', password: 'user123' },
+        { username: 'user22', password: 'user123' },
+        { username: 'user23', password: 'user123' },
+        { username: 'user24', password: 'user123' },
+        { username: 'user25', password: 'user123' },
+        { username: 'user26', password: 'user123' },
+        { username: 'user27', password: 'user123' },
+        { username: 'user28', password: 'user123' },
+        { username: 'user29', password: 'user123' },
+        { username: 'user30', password: 'user123' },
+    ];
+});
+
+
+
+// Prepara 1000 usuarios distintos
+const users = new SharedArray('users', function () {
+    const arr = [];
+    for (let i = 0; i < 1000; i++) {
+        arr.push({
+            username: `usuario${i + 1}`,
+            password: `password${i + 1}`
+        });
+    }
+    return arr;
+});
+
+const createProductTime = new Trend('create_product_time');
+
+export const options = {
+    scenarios: {
+        burst_1000_rps: {
+            executor: 'constant-arrival-rate',
+            rate: 1000,            // 1000 peticiones por segundo
+            timeUnit: '1s',
+            duration: '1s',
+            preAllocatedVUs: 1000,
+            maxVUs: 2000,
+        }
+    }
+};
+
+export default function () {
+    // Escoge un usuario aleatorio (o secuencial si prefieres)
+    const idx = (__ITER % users.length);
+    const user = users[idx];
+
+    // Login con ese usuario
+    const loginRes = http.post('http://localhost:8080/auth/login', JSON.stringify({
+        username: user.username,
+        password: user.password
+    }), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const token = loginRes.json('token');
+
+    // Payload para crear producto
+    const payload = JSON.stringify({
+        productName: 'Servidor ' + Math.random().toString(36).substring(2, 10),
+        quantityPerUnit: '1 unidad',
+        unitPrice: 14999.99,
+        unitsInStock: 20,
+        unitsOnOrder: 10,
+        reorderLevel: 5,
+        discontinued: false,
+        categoryID: 1
+    });
+
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    const start = Date.now();
+    const res = http.post('http://localhost:8080/api/products', payload, { headers });
+    const elapsed = Date.now() - start;
+    createProductTime.add(elapsed);
+
+    check(res, {
+        'status is 202': (r) => r.status === 202
+    });
+}
