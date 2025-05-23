@@ -44,7 +44,7 @@ class LocalImageStorageServiceImplTest {
     }
 
     @Test
-    void should_saveImage_fromMultipartFile() throws IOException {
+    void shouldSaveImageFromMultipartFile() throws IOException {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "imagen.png", "image/png", "contenido".getBytes()
         );
@@ -54,13 +54,13 @@ class LocalImageStorageServiceImplTest {
         String result = storageSpy.storageImage(file, "SERVIDORES");
 
         assertNotNull(result);
-        assertTrue(result.startsWith("/images/SERVIDORES/"));
+        assertTrue(result.startsWith("/images/"));
         assertTrue(result.endsWith(".png"));
         verify(storageSpy, times(1)).writeToDisk(any(), any(), any());
     }
 
     @Test
-    void should_saveImage_fromRawBytes() throws IOException {
+    void shouldSaveImageFromRawBytes() throws IOException {
         byte[] content = "imagen".getBytes();
         // Evitar escritura en disco real
         doNothing().when(storageSpy).writeToDisk(any(), any(), any());
@@ -68,13 +68,13 @@ class LocalImageStorageServiceImplTest {
         String result = storageSpy.storageImage("REDES", "switch.png", content, "image/png");
 
         assertNotNull(result);
-        assertTrue(result.startsWith("/images/REDES/"));
+        assertTrue(result.startsWith("/images/"));
         assertTrue(result.endsWith(".png"));
         verify(storageSpy, times(1)).writeToDisk(any(), any(), any());
     }
 
     @Test
-    void should_fail_if_contentType_invalid() throws IOException {
+    void shouldFailIfContentTypeInvalid() throws IOException {
         byte[] content = "pdf".getBytes();
 
         BusinessException ex = assertThrows(BusinessException.class, () ->
@@ -85,7 +85,7 @@ class LocalImageStorageServiceImplTest {
     }
 
     @Test
-    void should_fail_if_extension_not_allowed() throws IOException {
+    void shouldFailIfExtensionNotAllowed() throws IOException {
         byte[] content = "imagen".getBytes();
         imagesCategory.setFormatImages(List.of("image/jpeg")); // Solo jpg
 

@@ -19,12 +19,6 @@ public class RabbitProductCommandListener {
 
     private final ProductService productService;
 
-//    @RabbitListener(queues = "product.create.queue")
-//    public void handleProductCreate(ProductCreateRequest request) {
-//        log.info("Recibido producto desde RabbitMQ: {}", request.getProductName());
-//        productService.createProduct(Collections.singletonList(request));
-//    }
-
     @RabbitListener(queues = "product.create.queue", concurrency = "5-20")
     public void handleProduct(ProductCreateRequest request) {
         log.debug("Recibido producto desde RabbitMQ: {}", request.getProductName());
