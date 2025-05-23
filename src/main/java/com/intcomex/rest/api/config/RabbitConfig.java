@@ -1,5 +1,6 @@
 package com.intcomex.rest.api.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Slf4j
 public class RabbitConfig {
 
     private final AppProperties.EventRabbitMQ.ProductEventConfig productQueueConfig;
@@ -18,6 +20,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue productCreateQueue() {
+        log.debug("Declarando cola: " + productQueueConfig.getQueueName());
         return new Queue(productQueueConfig.getQueueName(), true);
     }
 

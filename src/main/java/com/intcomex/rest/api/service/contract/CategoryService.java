@@ -15,7 +15,9 @@ public interface CategoryService {
     CategoryCreateResponse createCategory(String name, String description,
                                           String fileName, byte[] imageBytes, String contentType);
 
-    public List<Long> getAllCategoryIds();
+    List<Long> getAllCategoryIds();
+
+    List<CategoryCreateResponse> getAllCategories();
 
     boolean existOneCategory();
 

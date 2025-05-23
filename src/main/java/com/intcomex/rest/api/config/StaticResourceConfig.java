@@ -19,7 +19,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
             imagePath = imagePath + "/";
         }
         // Debe tener el prefijo "file:"
-        registry.addResourceHandler("/images/**")
+        registry.addResourceHandler(imagePath.substring(1) + "**")  //Quitamos el punto inicial
                 .addResourceLocations("file:" + imagePath);
     }
 }

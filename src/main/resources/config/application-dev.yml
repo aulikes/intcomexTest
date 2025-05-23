@@ -5,6 +5,12 @@ spring:
     username: sa
     password:
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -79,6 +85,6 @@ app:
 
   eventRabbitmq:
     productEventConfig:
-      queueName: product.created.queue
+      queueName: product.create.queue
       exchange: product.exchange
       routingKey: product.create

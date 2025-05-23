@@ -35,13 +35,10 @@ public class LocalImageStorageServiceImpl extends AbstractImageStorageService {
     public String storageImage(String categoryName, String fileName, byte[] imageBytes, String contentType) throws IOException {
         validateImage(imageBytes, contentType);
         String uniqueName = buildUniqueFileName(categoryName, fileName);
-        String basePath = appProperties.getImagesCategory().getImagePublicPath(); //./images/categories/
-        Path categoryDir = Paths.get(basePath, categoryName);
-        Path imagePath = categoryDir.resolve(uniqueName);
-
+        String basePath = appProperties.getImagesCategory().getImagePublicPath(); //  ./images/categories/
+        Path categoryDir = Paths.get(basePath);
         writeToDisk(categoryDir, imageBytes, uniqueName);
-
-        return "/images/" + categoryName + "/" + uniqueName;
+        return (basePath.startsWith("./") ? basePath.substring(1) : basePath) + uniqueName;
     }
 
     protected void writeToDisk(Path categoryDir, byte[] imageBytes, String uniqueName) throws IOException {

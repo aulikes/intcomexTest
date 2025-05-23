@@ -23,7 +23,7 @@ API REST desarrollada en Spring Boot para la gestión de productos y categorías
 ## ⚙️ Tecnologías utilizadas
 
 - Java 21
-- Spring Boot 3.2
+- Spring Boot 3.4.5
 - Gradle
 - PostgreSQL (prod)
 - H2 (dev)
@@ -35,72 +35,144 @@ API REST desarrollada en Spring Boot para la gestión de productos y categorías
 
 ---
 
-## 📁 Estructura del proyecto
-
-Organización del código fuente siguiendo buenas prácticas de arquitectura limpia:
-
-- `controller` – Exposición de endpoints
-- `service/contract` – Interfaces de servicios
-- `service/impl` – Lógica de negocio
-- `entity` – Entidades JPA
-- `dto` – Objetos de transferencia de datos
-- `mapper` – Conversión entre entidades y DTOs
-- `repository` – Acceso a datos con Spring Data JPA
-- `config` – Configuración de seguridad, CORS, Swagger, carga inicial, etc.
-
----
-
 ## 📦 Perfiles configurados
 
 ### 🔹 `dev` (por defecto)
 - Conexión con H2 en memoria para entorno `dev` (no requiere instalación)
-- Datos de prueba precargados (categorías + 100.000 productos)
+- Datos de prueba precargados (2 categorías + 100.000 productos)
 - Acceso a consola: `http://localhost:8080/h2-console`
 
 ### 🔹 `prod`
 - Configurado para PostgreSQL real
+- Datos de prueba precargados (2 categorías + 100.000 productos)
 - Las credenciales se definen por variables de entorno
 - Usado para despliegue en la nube http://incomex-api.us-east-2.elasticbeanstalk.com/
 
 ---
 
-## 📌 Script para la Base de Datos
 
--- Tabla: Categorias
-CREATE TABLE CATEGORY (
-CategoryID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-CategoryName VARCHAR(100) UNIQUE NOT NULL,
-Description VARCHAR(1000),
-Picture VARCHAR(2000)
+## 📦 Estructura del Proyecto
+
+```text
+com.intcomex.rest.api/
+├── IntcomexRestApiApplication.java       → Clase principal que arranca la aplicación Spring Boot
+│
+├── async/                                → Componentes que se ejecutan en segundo plano
+│   ├── InitialCategoryLoader.java        → Carga inicial de categorías al arrancar la app
+│   ├── InitialProductLoader.java         → Carga masiva inicial de productos
+│   ├── ProductBatchWorker.java           → Procesa productos por lotes desde una cola
+│   └── RabbitProductCommandListener.java → Listener que consume eventos de RabbitMQ
+│
+├── config/                               → Configuraciones globales y específicas de Spring
+│   ├── AppProperties.java                → Propiedades externas (config `app.*` del YAML)
+│   ├── AppSecurityProperties.java        → Propiedades de seguridad (roles, JWT)
+│   ├── CacheConfig.java                  → Configuración de caché con Caffeine
+│   ├── CorsConfig.java                   → CORS: orígenes permitidos para la API
+│   ├── ExecutorConfig.java               → Configuración de hilos para tareas async
+│   ├── QueueConfig.java                  → Configura la cola interna para lotes de productos
+│   ├── RabbitConfig.java                 → Define colas, exchanges y bindings de RabbitMQ
+│   ├── SecurityConfig.java               → Define filtros, rutas públicas y seguridad general
+│   ├── StaticResourceConfig.java         → Sirve imágenes estáticas desde rutas específicas
+│   ├── TimeZoneFilter.java               → Filtro que inyecta zona horaria desde encabezado
+│   └── ZoneContextHolder.java            → Provee acceso a la zona horaria actual del request
+│
+├── controller/                           → Endpoints expuestos vía HTTP (API REST)
+│   ├── AuthController.java               → Login y emisión de tokens JWT
+│   ├── CategoryController.java           → CRUD de categorías y carga de imagen
+│   └── ProductController.java            → CRUD y paginación de productos
+│
+├── dto/                                  → Objetos de transferencia (DTOs) de entrada y salida
+│   ├── AuthRequest / AuthResponse.java   → Login de usuarios
+│   ├── CategoryCreateRequest / Response  → Alta de categorías
+│   ├── ProductCreateRequest / Response   → Alta de productos
+│   ├── ProductGetResponse.java           → Respuesta detallada de productos
+│   ├── PaginationRequest / Response      → Paginación genérica
+│   └── ErrorResponse.java                → Estructura de errores de la API
+│
+├── entity/                               → Entidades JPA mapeadas a tablas de PostgreSQL
+│   ├── Category.java
+│   └── Product.java
+│
+├── exception/                            → Manejo de errores centralizado
+│   ├── BusinessException.java
+│   ├── GlobalExceptionHandler.java       → @ControllerAdvice para errores globales
+│   ├── ImagenFormatException.java
+│   └── ResourceNotFoundException.java
+│
+├── mapper/                               → MapStruct: convierte entre entidades y DTOs
+│   ├── CategoryMapper.java
+│   ├── ProductReqMapper.java
+│   └── ProductResMapper.java
+│
+├── repository/                           → Repositorios JPA para acceso a BD
+│   ├── CategoryRepository.java
+│   └── ProductRepository.java
+│
+├── security/                             → Seguridad basada en JWT
+│   ├── JwtFilter.java                    → Filtro que valida el token JWT
+│   └── JwtUtil.java                      → Emisión y validación de tokens
+│
+├── service/
+│   ├── contract/                         → Interfaces de servicios (Auth, Product, Category)
+│   ├── impl/                             → Implementaciones concretas de la lógica
+│   ├── queue/                            → Publicadores de eventos a colas internas o Rabbit
+│   └── storage/                          → Implementaciones para guardar imágenes (local y S3)
+│
+├── swagger/                              → Documentación Swagger con respuestas de error comunes
+│   ├── DefaultErrApiResponses.java
+│   ├── DefaultErrAuthResponses.java
+│   └── DefaultErrClientResponses.java
+│
+└── util/                                 → Utilidades generales de fechas, URLs, etc.
+    ├── DateTimeUtils.java
+    └── UrlBuilderUtil.java
+```
+
+## 🗄️ Estructura de la base de datos 
+
+### 🗂️ Tabla: `category`
+
+```sql
+CREATE TABLE category (
+    CategoryID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    CategoryName VARCHAR(100) UNIQUE NOT NULL,     -- Nombre único para la categoría
+    Description VARCHAR(1000),                     -- Descripción extensa
+    Picture VARCHAR(200)                           -- Ruta relativa de la imagen 
 );
+```
 
--- Tabla: Productos
-CREATE TABLE PRODUCT (
-ProductID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-ProductName VARCHAR(100) NOT NULL,
-SupplierID INTEGER,
-CategoryID INTEGER,
-QuantityPerUnit VARCHAR(100),
-UnitPrice NUMERIC(10, 2),
-UnitsInStock INTEGER,
-UnitsOnOrder INTEGER,
-ReorderLevel INTEGER,
-Discontinued BOOLEAN DEFAULT FALSE,
-CONSTRAINT fk_products_category FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+### 🗂️ Tabla: `product`
+
+```sql
+CREATE TABLE product (
+    ProductID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ProductName VARCHAR(100) NOT NULL,             -- Nombre del producto
+    SupplierID INTEGER,                            -- Referencia opcional a proveedor
+    CategoryID INTEGER,                            -- FK a categoría
+    QuantityPerUnit VARCHAR(100),                  -- Descripción del empaque (ej. 10x1L)
+    UnitPrice NUMERIC(10, 2),                      -- Precio por unidad
+    UnitsInStock INTEGER,                          -- Unidades actualmente en inventario
+    UnitsOnOrder INTEGER,                          -- Unidades pedidas a proveedor
+    ReorderLevel INTEGER,                          -- Nivel para generar nuevo pedido
+    Discontinued BOOLEAN DEFAULT FALSE,            -- Si está fuera de comercialización
+    CONSTRAINT fk_products_category
+        FOREIGN KEY (CategoryID)
+        REFERENCES category(CategoryID)
 );
-
+```
 
 
 ---
 
 ## 📌 Endpoints principales
 
-| Método | Endpoint             | Descripción                                    |
-|--------|----------------------|------------------------------------------------|
-| POST   | `/auth/login`        | Autenticación con usuario/contraseña          |
-| POST   | `/categories`        | Crear una nueva categoría                     |
-| POST   | `/products`          | Crear productos con datos aleatorios          |
-| GET    | `/products`          | Listar productos con paginación               |
+| Método | Endpoint             | Descripción                                     |
+|--------|----------------------|-------------------------------------------------|
+| POST   | `/auth/login`        | Autenticación con usuario/contraseña            |
+| POST   | `/categories`        | Crear una nueva categoría                       |
+| GET    | `/categories`        | Listar las categorías                           |
+| POST   | `/products`          | Crear productos con datos aleatorios            |
+| GET    | `/products`          | Listar productos con paginación                 |
 | GET    | `/products/{id}`     | Obtener producto por ID con imagen de categoría |
 
 ---
@@ -128,7 +200,7 @@ Esta API implementa seguridad mediante **JWT (JSON Web Tokens)**.
 
 ### Usuarios configurados
 
-Los usuarios están definidos directamente en el código (`application.yml`) para facilitar pruebas:
+Los usuarios para entorno local están definidos directamente en el código (`application-dev.yml`) para facilitar pruebas:
 
 | Usuario | Contraseña |
 |---------|------------|

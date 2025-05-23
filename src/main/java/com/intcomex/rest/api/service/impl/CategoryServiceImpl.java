@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -27,9 +28,19 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
     private final ImageStorageService imageStorageService;
 
+    @Override
     @Transactional(readOnly = true)
     public List<Long> getAllCategoryIds() {
-        return categoryRepository.findAll().stream().map(Category::getCategoryID).toList();
+        return categoryRepository.findAll().stream().map(Category::getCategoryID).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryCreateResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(this::getDtoWithImageUrl)
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -50,9 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
                 }
             }
         );
-        CategoryCreateResponse dto = categoryMapper.toDTO(savedCategory);
-        dto.setPicture(imageStorageService.getBaseUrlImage() + savedCategory.getPicture());
-        return dto;
+        return getDtoWithImageUrl(savedCategory);
     }
 
     @Override
@@ -108,5 +117,11 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (Exception ex) {
             throw new BusinessException("Error al guardar la imagen. No se creó la categoría.");
         }
+    }
+
+    private CategoryCreateResponse getDtoWithImageUrl(Category category) {
+        CategoryCreateResponse dto = categoryMapper.toDTO(category);
+        dto.setPicture(imageStorageService.getBaseUrlImage() + category.getPicture());
+        return dto;
     }
 }

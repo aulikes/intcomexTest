@@ -18,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/categories")
@@ -53,6 +55,25 @@ public class CategoryController {
             @Valid @ModelAttribute CategoryCreateRequest categoryCreateRequest
     ) {
         CategoryCreateResponse created = categoryService.createCategory(categoryCreateRequest, httpServletRequest);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Obtiene la lista de todas las categorías"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CategoryCreateResponse.class)
+            )
+    )
+    @DefaultErrApiResponses
+    @DefaultErrAuthResponses
+    @DefaultErrClientResponses
+    @GetMapping()
+    public ResponseEntity<List<CategoryCreateResponse>> getCategories() {
+        List<CategoryCreateResponse> created = categoryService.getAllCategories();
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 }
