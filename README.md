@@ -46,7 +46,7 @@ API REST desarrollada en Spring Boot para la gestión de productos y categorías
 - Configurado para PostgreSQL real
 - Datos de prueba precargados (2 categorías + 100.000 productos)
 - Las credenciales se definen por variables de entorno
-- Usado para despliegue en la nube http://intcomex-us-east-2-testapi-env.us-east-2.elasticbeanstalk.com/
+- URL base de la aplicación desplegada en la nube http://intcomex-us-east-2-testapi-env.us-east-2.elasticbeanstalk.com/
 
 ---
 

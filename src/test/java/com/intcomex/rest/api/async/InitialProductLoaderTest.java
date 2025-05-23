@@ -1,6 +1,6 @@
-package com.intcomex.rest.api.config;
+package com.intcomex.rest.api.async;
 
-import com.intcomex.rest.api.async.InitialProductLoader;
+import com.intcomex.rest.api.config.AppProperties;
 import com.intcomex.rest.api.dto.ProductCreateRequest;
 import com.intcomex.rest.api.service.contract.CategoryService;
 import com.intcomex.rest.api.service.contract.ProductService;

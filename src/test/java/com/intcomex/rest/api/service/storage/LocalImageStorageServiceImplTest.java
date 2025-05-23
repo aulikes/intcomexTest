@@ -32,7 +32,7 @@ class LocalImageStorageServiceImplTest {
     void setUp() throws IOException {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        imagesCategory.setImagePublicPath("/fake/base/path"); // Ruta fake
+        imagesCategory.setImagePublicPath("/fake/base/path/"); // Ruta fake
         imagesCategory.setFormatImages(List.of("image/png", "image/jpeg"));
         imagesCategory.setSizeImageCat(10485760); // 10MB
 
@@ -52,9 +52,10 @@ class LocalImageStorageServiceImplTest {
         doNothing().when(storageSpy).writeToDisk(any(), any(), any());
 
         String result = storageSpy.storageImage(file, "SERVIDORES");
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + result);
 
         assertNotNull(result);
-        assertTrue(result.startsWith("/images/"));
+        assertTrue(result.startsWith(imagesCategory.getImagePublicPath()));
         assertTrue(result.endsWith(".png"));
         verify(storageSpy, times(1)).writeToDisk(any(), any(), any());
     }
@@ -66,9 +67,10 @@ class LocalImageStorageServiceImplTest {
         doNothing().when(storageSpy).writeToDisk(any(), any(), any());
 
         String result = storageSpy.storageImage("REDES", "switch.png", content, "image/png");
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + result);
 
         assertNotNull(result);
-        assertTrue(result.startsWith("/images/"));
+        assertTrue(result.startsWith(imagesCategory.getImagePublicPath()));
         assertTrue(result.endsWith(".png"));
         verify(storageSpy, times(1)).writeToDisk(any(), any(), any());
     }

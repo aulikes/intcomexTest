@@ -1,6 +1,6 @@
-package com.intcomex.rest.api.config;
+package com.intcomex.rest.api.async;
 
-import com.intcomex.rest.api.async.InitialCategoryLoader;
+import com.intcomex.rest.api.config.AppProperties;
 import com.intcomex.rest.api.config.AppProperties.InitialCategory;
 import com.intcomex.rest.api.exception.ImagenFormatException;
 import com.intcomex.rest.api.service.contract.CategoryService;
