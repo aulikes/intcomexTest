@@ -35,12 +35,6 @@ security:
 
 ---
 
-server:
-  port: 8080
-
-
----
-
 app:
   # Zona Horaria
   customerZone :
