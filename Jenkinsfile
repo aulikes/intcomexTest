@@ -7,6 +7,7 @@ pipeline {
     SONAR_SCANNER_OPTS = "-Dsonar.projectKey=intcomex-api"
     DOCKER_IMAGE = 'intcomex-api'
     DOCKER_PORT = '8090'
+    SPRING_PROFILE = 'dev'
   }
 
   stages {
@@ -47,7 +48,7 @@ pipeline {
           // Stop previous container if running
           sh "docker rm -f ${DOCKER_IMAGE} || true"
           // Run new container on port 8090
-          sh "docker run -d -p ${DOCKER_PORT}:${DOCKER_PORT} --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}"
+          sh "docker run -d -p SPRING_PROFILE=${SPRING_PROFILE} ${DOCKER_PORT}:${DOCKER_PORT} --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}"
         }
       }
     }
