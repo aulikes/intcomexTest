@@ -26,7 +26,9 @@ pipeline {
     stage('SonarQube Analysis') {
       steps {
         withSonarQubeEnv('sonaqube-docker') {
-          sh './gradlew sonarqube --info'
+          withCredentials([string(credentialsId: 'Jenkins-Sonar', variable: 'SONAR_TOKEN')]) {
+            sh "./gradlew sonarqube -Dsonar.login=${SONAR_TOKEN} --info"
+          }
         }
       }
     }
