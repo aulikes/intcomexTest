@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco'
+	id "org.sonarqube" version "6.2.0.5505"
 }
 
 group = 'com.intcomex'
@@ -84,17 +85,18 @@ dependencies {
 
 }
 
-// Plataforma de pruebas
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
 // Configuración Jacoco
 jacoco {
 	toolVersion = "0.8.12"
 }
 
+build {
+	dependsOn jacocoTestReport
+}
+
+// Plataforma de pruebas
 test {
+	useJUnitPlatform()
 	include '**/*Test.class' // Solo pruebas unitarias
 	finalizedBy jacocoTestReport
 }
@@ -110,5 +112,14 @@ jacocoTestReport {
 		xml.required = true
 		html.required = true
 		csv.required = false
+	}
+}
+
+sonarqube {
+	properties {
+		property "sonar.projectKey", "intcomex-api"
+		property "sonar.host.url", "http://sonarqube:9000"
+		property "sonar.java.binaries", "build/classes/java/main"
+
 	}
 }
