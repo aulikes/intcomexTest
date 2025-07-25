@@ -5,18 +5,37 @@ API REST desarrollada en Spring Boot para la gestión de productos y categorías
 
 ---
 
-## 🧾 Requisitos del reto técnico
+## 🛠️ Integración con Jenkins y Docker
 
-- Exponer endpoints REST para:
-  - Crear categorías (`POST /categories`)
-  - Crear productos (`POST /products`)
-  - Listar productos con paginación (`GET /products`)
-  - Buscar producto por ID e incluir imagen de su categoría (`GET /products/{id}`)
-- Crear 2 categorías por defecto: `SERVIDORES` y `CLOUD`
-- Insertar 100.000 productos aleatorios asociados a esas categorías
-- Desplegar en un servicio de cloud computing
-- Documentar el API con Swagger/OpenAPI
-- Proveer código fuente en GitHub y una URL pública funcionando
+El proyecto incluye automatización de CI/CD usando **Jenkins** y un archivo `Dockerfile` personalizado para construir la imagen Docker del backend.
+
+### 📄 Jenkinsfile y uso del Dockerfile
+
+Se define un `Jenkinsfile` con un pipeline declarativo que realiza los siguientes pasos clave:
+
+```groovy
+stage('Build Docker Image') {
+  steps {
+    script {
+      sh "docker build -t ${DOCKER_IMAGE} ."
+    }
+  }
+}
+```
+
+Esto significa que Jenkins ejecuta el comando `docker build` directamente en la raíz del proyecto, **utilizando el `Dockerfile` que se encuentra en esa ubicación**.  
+Aunque el `Jenkinsfile` no hace una referencia explícita al archivo, Docker lo detecta automáticamente si se encuentra con el nombre estándar (`Dockerfile`) en la raíz del repositorio.
+
+### 🧱 ¿Por qué incluir un Dockerfile?
+
+El `Dockerfile` permite:
+
+- Empaquetar el proyecto como una imagen Docker, lista para ejecutarse en cualquier entorno compatible.
+- Integrarse directamente con pipelines de CI/CD que construyen y despliegan imágenes desde el código fuente.
+- Garantizar independencia del entorno local, favoreciendo la portabilidad, pruebas consistentes y despliegue reproducible.
+- Soportar entornos productivos como AWS Elastic Beanstalk, ECS, Kubernetes, etc.
+
+> ✅ La combinación de Jenkins + Dockerfile garantiza un flujo de integración y despliegue continuo sólido, reproducible y profesional.
 
 ---
 
