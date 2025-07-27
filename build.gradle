@@ -120,6 +120,5 @@ sonarqube {
 		property "sonar.projectKey", "intcomex-api"
 		property "sonar.host.url", "http://sonarqube:9000"
 		property "sonar.java.binaries", "build/classes/java/main"
-
 	}
 }

@@ -4,7 +4,6 @@ pipeline {
   environment {
     // Variables necesarias para Sonar y Gradle
     SONAR_HOST_URL = 'http://sonarqube:9000'
-    SONAR_SCANNER_OPTS = "-Dsonar.projectKey=intcomex-api"
     DOCKER_IMAGE = 'intcomex-api'
     DOCKER_PORT = '8090'
     SPRING_PROFILE = 'dev'
